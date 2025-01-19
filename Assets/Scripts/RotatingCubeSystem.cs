@@ -10,11 +10,13 @@ public partial struct RotatingCubeSystem : ISystem // This is running on the mai
     [BurstCompile] // this can be added in the struct itself, but we only need to add it on the methods
     public void OnUpdate(ref SystemState state)
     {
+        state.Enabled = false;
+        return;
         /*
             // RefRW is for Read-Write
             // RefRO is for Read-Only
             // Goes to every entity that have those components
-            foreach (var (localTransform, rotateSpeed) in SystemAPI.Query<RefRW<LocalTransform>,RefRO<RotateSpeed>>())
+            foreach (var (localTransform, rotateSpeed) in SystemAPI.Query<RefRW<LocalTransform>,RefRO<RotateSpeed>>().WithAll<RotatingCube>())
             {
                 // Time.deltaTime is not working with entities
                 localTransform.ValueRW = localTransform.ValueRW.RotateY(rotateSpeed.ValueRO.value * SystemAPI.Time.DeltaTime);
@@ -29,8 +31,8 @@ public partial struct RotatingCubeSystem : ISystem // This is running on the mai
     }
 
     [BurstCompile]
-    // This allows us to make this rotation on multiple thread
-    public partial struct RotatingCubeJob : IJobEntity
+    [WithAll(typeof(RotatingCube))] // This allows that this job is not activated by the component with tag Player and only RotatingCube
+    public partial struct RotatingCubeJob : IJobEntity // This allows us to make this rotation on multiple thread
     {
         // We can't access the SystemAPI.Time.DeltaTime so we need to set up ourselve during update
         public float deltaTime;
