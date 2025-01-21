@@ -12,6 +12,18 @@ public partial class PlayerShootingSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            Entity playerEntity = SystemAPI.GetSingletonEntity<Player>();
+            EntityManager.SetComponentEnabled<Stunned>(playerEntity, true);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Y))
+        {
+            Entity playerEntity = SystemAPI.GetSingletonEntity<Player>();
+            EntityManager.SetComponentEnabled<Stunned>(playerEntity, false);
+        }
+        
         if (!Input.GetKeyDown(KeyCode.Space))
         {
             return;
@@ -21,7 +33,7 @@ public partial class PlayerShootingSystem : SystemBase
             
         EntityCommandBuffer entityCommandBuffer = new EntityCommandBuffer(WorldUpdateAllocator);
         
-        foreach (RefRO<LocalTransform> localTransform in SystemAPI.Query<RefRO<LocalTransform>>().WithAll<Player>())
+        foreach (RefRO<LocalTransform> localTransform in SystemAPI.Query<RefRO<LocalTransform>>().WithAll<Player>().WithDisabled<Stunned>())
         {
             Entity spawnedEntity = entityCommandBuffer.Instantiate(spawnCubeConfig.cubePrefabEntity);
             entityCommandBuffer.SetComponent(spawnedEntity,new LocalTransform
